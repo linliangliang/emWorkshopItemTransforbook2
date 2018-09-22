@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--<string-array name="Role">
+        <item>北京驻外人员</item>
+        <item>市场部</item>
+    </string-array>-->
+
+    <string-array name="BoxScenario1">
+        <item>新造</item>
+        <item>大修</item>
+    </string-array>
+
+    <string-array name="BoxScenario2">
+        <item>统型</item>
+        <item>非统型</item>
+    </string-array>
+
+    <string-array name="YQtype">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
+    <string-array name="Location">
+        <item>三号楼</item>
+        <item>一号楼一楼</item>
+        <item>一号楼三楼</item>
+        <item>老化</item>
+        <item>油漆房</item>
+    </string-array>
+    <string-array name="BoxType">
+        <item>空箱体</item>
+        <item>半成品</item>
+        <item>成品</item>
+    </string-array>
+</resources>
