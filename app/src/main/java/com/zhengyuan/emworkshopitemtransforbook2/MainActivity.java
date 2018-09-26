@@ -958,7 +958,6 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                     }
                 });
     }
-
     /*public void checkSM2(String maIndfo){
         DataObtainer.INSTANCE.checkSaoMiao(maIndfo,
                 new NetworkCallbacks.SimpleDataCallback() {
