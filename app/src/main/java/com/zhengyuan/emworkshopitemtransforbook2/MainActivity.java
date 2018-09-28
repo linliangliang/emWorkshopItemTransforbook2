@@ -47,10 +47,10 @@ import java.nio.charset.Charset;
 
 import static com.zhengyuan.emworkshopitemtransforbook2.ImageToGallery.fileName;
 
-public class  MainActivity extends Activity implements View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
     //获取操作者的工号
     String sId = EMProApplicationDelegate.userInfo.getUserId();
-    String sName=EMProApplicationDelegate.userInfo.getUserName();
+    String sName = EMProApplicationDelegate.userInfo.getUserName();
     String data1;
     String info = "";
     private String imageNames;
@@ -137,7 +137,7 @@ public class  MainActivity extends Activity implements View.OnClickListener {
     Handler handler5;
     ImageButton mainBtn;
     //////////////////////////////////////////////////////////////linliang code
-    private LinearLayout belongsZhengji=null;
+    private LinearLayout belongsZhengji = null;
     boolean isFull = false;//防止重复扫描父物件，记录下拉框是否填充过，填充过第二次就不填充
     Handler getLoginRoleHandler = null;
     Handler checkHasTheQRAndIsMachineHandler;
@@ -179,7 +179,7 @@ public class  MainActivity extends Activity implements View.OnClickListener {
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isMachineBoolean==0) {
+                if (isMachineBoolean == 0) {
                     //不是整机的数据提交
                     if ((!parentQRInfo_Eidt.getText().toString().equals("")) && index[0] == 1) {//检验提交数据的完整性
 
@@ -200,11 +200,11 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                                 submitData1(parentQRInfo_Eidt.getText().toString().trim(), sId, photoName[0]);
                             }
                         }).start();
-                    } else{
+                    } else {
                         //给出提示，提示空提交
                         Toast.makeText(MainActivity.this, "请先扫码并完善父物件图片", Toast.LENGTH_SHORT).show();
                     }
-                } else if(isMachineBoolean==1){
+                } else if (isMachineBoolean == 1) {
                     //整机的数据提交
                     if (index[0] == 0 || index[1] == 0 || index[2] == 0) {
                         Toast.makeText(MainActivity.this, "请先完善图片,再提交!", Toast.LENGTH_SHORT).show();
@@ -333,11 +333,11 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                 if (loginRole != null) {
                     if ("组长".equals(loginRole)) {
                         //班组长身份
-                        Toast.makeText(MainActivity.this, "组长 "+sName+"，请确认父物件信息", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "组长 " + sName + "，请确认父物件信息", Toast.LENGTH_SHORT).show();
                         UIForGroupLeader();
                     } else {
                         //组员身份,界面不变
-                        Toast.makeText(MainActivity.this, "组员 "+sName+"，请录装配卡信息", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "组员 " + sName + "，请录装配卡信息", Toast.LENGTH_SHORT).show();
                         ParentQRInfo_Scan.setEnabled(true);
                         ParentQRInfo_photo.setVisibility(View.GONE);
                     }
@@ -353,8 +353,8 @@ public class  MainActivity extends Activity implements View.OnClickListener {
             @Override
             public void handleMessage(Message msg) {
                 super.handleMessage(msg);
-                if(!"error".equals(HasTheQRAndIsMachineString)){
-                    if (HasTheQRAndIsMachineString != null ) {
+                if (!"error".equals(HasTheQRAndIsMachineString)) {
+                    if (HasTheQRAndIsMachineString != null) {
                         String[] temp = HasTheQRAndIsMachineString.split(",");
                         if (temp.length == 2) {
                             //数据库实时表有无该数据
@@ -367,16 +367,16 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                             if ("true".equals(temp[1])) {
                                 isMachineBoolean = 1;
 
-                            }else if("false".equals(temp[1])) {
+                            } else if ("false".equals(temp[1])) {
                                 isMachineBoolean = 0;
-                            }else{
+                            } else {
                                 isMachineBoolean = -1;
                             }
 
                             if ("组长".equals(loginRole)) {
                                 //分角色
                                 parentQRInfo_Eidt.setText(info);
-                                if (isMachineBoolean==1) { //整机
+                                if (isMachineBoolean == 1) { //整机
                                     //显示整机明细
                                     belongsZhengji.setVisibility(View.VISIBLE);
 
@@ -390,15 +390,15 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                                     } else {
                                         Toast.makeText(MainActivity.this, "该物件信息尚未被录入，请录入信息", Toast.LENGTH_SHORT).show();
                                     }
-                                } else if(isMachineBoolean==0){
+                                } else if (isMachineBoolean == 0) {
                                     //不显示整机明细
                                     belongsZhengji.setVisibility(View.GONE);
 
                                     Toast.makeText(MainActivity.this, "扫描的是非整机", Toast.LENGTH_SHORT).show();
-                                }else{
+                                } else {
                                     Toast.makeText(MainActivity.this, "登录角色不对", Toast.LENGTH_SHORT).show();
                                 }
-                            } else  if ("组员".equals(loginRole)){
+                            } else if ("组员".equals(loginRole)) {
                                 //组员
                                 if (checkHasTheQRBoolean) {
                                     //跳转到另一个activity
@@ -414,7 +414,7 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                         }
                     }
 
-                }else{
+                } else {
                     Toast.makeText(MainActivity.this, "二维码信息不对，请确认后重扫", Toast.LENGTH_LONG).show();
                 }
                 closeProgremmer();//onActivityResult中的show
@@ -538,18 +538,32 @@ public class  MainActivity extends Activity implements View.OnClickListener {
             info = data.getStringExtra("result");
             info = recode(info);//扫码器返回的信息
             if (info != null && info != "") {
+
+                //版本2.2新增功能
+                /*判断扫码信息是否是要确认货架信息，如果是货架信息跳转到另一个activity,如果不是，继续下面操作*/
+                int scanQRType=checkMouldShelfInfo(info);
+                if (1 == scanQRType) {
+                    Intent intent = new Intent(MainActivity.this, MouldShelfActivity.class);
+                    intent.putExtra("data",info);
+                    startActivity(intent);
+                    return;//不做操作直接返回
+                }else if(0==scanQRType){
+                    Toast.makeText(MainActivity.this,"请先扫描货架二维码,",Toast.LENGTH_SHORT).show();
+                    return ;//不做操作直接返回
+                }
+
                 /*先清除二维码信息框的文字*/
                 parentQRInfo_Eidt.setText("");
                 showProgremmer();//对应checkHasTheQRAndIsMachineHandler中的close
-                checkHasTheQRAndIsMachine(info,sId);
+                checkHasTheQRAndIsMachine(info, sId);
             } else {
                 Utils.showToast("未扫描");
             }
         } else if (requestCode == REQUST_TAKE_PHOTTO_CODE2 && resultCode == Activity.RESULT_OK) {
             //requestCode=2拍照
-            if(data!=null){
+            if (data != null) {
                 Bundle bundle = data.getExtras();
-                    if (bundle != null) {
+                if (bundle != null) {
                     Bitmap bm = (Bitmap) bundle.get("data");
 
                     if (bm != null) {
@@ -599,10 +613,10 @@ public class  MainActivity extends Activity implements View.OnClickListener {
 
                         index[IMAGE - 1] = 1;
                     }
-                }else{
+                } else {
                     index[IMAGE - 1] = 0;
                 }
-            }else{
+            } else {
                 index[IMAGE - 1] = 0;
             }
         }
@@ -627,7 +641,7 @@ public class  MainActivity extends Activity implements View.OnClickListener {
         ChuXianType_Spinner = (Spinner) findViewById(R.id.ChuXianType_Spinner);//正反出线
 
         //整机明细
-        belongsZhengji=(LinearLayout)findViewById(R.id.belongsZhengji);
+        belongsZhengji = (LinearLayout) findViewById(R.id.belongsZhengji);
 
     }
 
@@ -947,8 +961,8 @@ public class  MainActivity extends Activity implements View.OnClickListener {
 
 
     //检测实时表是否已经有该数据,是否为整机
-    private void checkHasTheQRAndIsMachine(String maIndfo,String loginId) {
-        DataObtainer.INSTANCE.checkHasTheQRAndIsMachine(maIndfo,loginId,
+    private void checkHasTheQRAndIsMachine(String maIndfo, String loginId) {
+        DataObtainer.INSTANCE.checkHasTheQRAndIsMachine(maIndfo, loginId,
                 new NetworkCallbacks.SimpleDataCallback() {
                     @Override
                     public void onFinish(boolean isSuccess, String msg, Object data) {
@@ -1234,12 +1248,27 @@ public class  MainActivity extends Activity implements View.OnClickListener {
                 });
     }
 
-    private void showProgremmer(){//显示进度条
-        loading = new Loading_view(this,R.style.CustomDialog);
+    private void showProgremmer() {//显示进度条
+        loading = new Loading_view(this, R.style.CustomDialog);
         loading.show();
     }
-    private void closeProgremmer(){//关闭进度条
+
+    private void closeProgremmer() {//关闭进度条
         loading.dismiss();
+    }
+
+    /**
+     * 返回值,1:扫描模具货架，跳转到录货架上物件信息的Activity
+     *        2:扫描模具，返回后不做操作。
+     *        3:录物件父子信息
+     * */
+    private int checkMouldShelfInfo(String mouldShelfQRInfo) {
+        if (mouldShelfQRInfo.contains("物料代码") & mouldShelfQRInfo.contains("物料名称") & mouldShelfQRInfo.contains("批次号") & mouldShelfQRInfo.contains("模具货架")) {
+            return 1;
+        } else if (mouldShelfQRInfo.contains("物料代码") & mouldShelfQRInfo.contains("物料名称") & mouldShelfQRInfo.contains("批次号")) {
+            return 0;
+        }
+        return -1;
     }
 
 }

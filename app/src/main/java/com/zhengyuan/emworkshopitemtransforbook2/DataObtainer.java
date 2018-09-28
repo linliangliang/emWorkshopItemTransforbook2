@@ -19,6 +19,7 @@ import com.zhengyuan.baselib.listener.NetworkCallbacks.SimpleDataCallback;
 public enum DataObtainer {
     INSTANCE;
     private final String LOG_TAG = "DataObtainer";
+        private final String TAG = "EMWorkshopItemTransforBook2";
 
     public void sendWsiforBook(String data, String sname, String url, String kujia, final NetworkCallbacks.SimpleDataCallback callback) {
         Element element = new Element("mybody");
@@ -228,13 +229,41 @@ public enum DataObtainer {
                 });
     }
 
-    public void submitMaInfoForSubItems(String subItems, String parentQRInfo, String loginId,final NetworkCallbacks.SimpleDataCallback callback) {
+    /**
+     * @param subItems
+     * @param parentQRInfo
+     * @param loginId
+     * @param callback
+     */
+    public void submitMaInfoForSubItems(String subItems, String parentQRInfo, String loginId, final NetworkCallbacks.SimpleDataCallback callback) {
         Element element = new Element("mybody");
         element.addProperty("type", "requestSubmitMaInfoForSubItems");
         element.addProperty("subItems", subItems);
         element.addProperty("parentQRInfo", parentQRInfo);
-        element.addProperty("loginId",loginId);
+        element.addProperty("loginId", loginId);
         ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnSubmitMaInfoForSubItems",
+                new NetworkCallbacks.MessageListenerThinner() {
+                    @Override
+                    public void processMessage(Element element, Message message, Chat chat) {
+                        boolean isSuccess = element.getBody() != null &&
+                                !element.getBody().equals("");
+                        callback.onFinish(isSuccess, "", element.getProperty("result"));
+                    }
+                });
+    }
+
+    /**
+     * 获取货架上已有物件的信息
+     * @param shelfInfo
+     * @param mLoginUserId
+     * @param callback
+     */
+    public void getShelfSubItems(String shelfInfo, String mLoginUserId, final NetworkCallbacks.SimpleDataCallback callback) {
+        Element element = new Element("mybody");
+        element.addProperty("type", "requestGetShelfSubItems" + TAG);
+        element.addProperty("shelfInfo", shelfInfo);
+        element.addProperty("loginUserId", mLoginUserId);
+        ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnGetShelfSubItems" + TAG,
                 new NetworkCallbacks.MessageListenerThinner() {
                     @Override
                     public void processMessage(Element element, Message message, Chat chat) {
