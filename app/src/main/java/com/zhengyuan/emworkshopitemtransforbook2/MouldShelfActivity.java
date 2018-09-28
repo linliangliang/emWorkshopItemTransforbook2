@@ -419,9 +419,25 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
         return result;
     }
 
-    private void SubmitDate(String data, String shelfInfo, String loginUserId) {
-        //提交数据
+    /**
+     * 提交数据访问服务器
+     *
+     * @param dataSubItems
+     * @param shelfInfo
+     * @param loginUserId
+     */
+    private void SubmitDate(String dataSubItems, String shelfInfo, String loginUserId) {
         Toast.makeText(MouldShelfActivity.this, "测试：提交数据成功", Toast.LENGTH_SHORT).show();
+        DataObtainer.INSTANCE.submitDAtaSubItems(dataSubItems, shelfInfo, loginUserId,
+                new NetworkCallbacks.SimpleDataCallback() {
+                    @Override
+                    public void onFinish(boolean b, String s, Object o) {
+                       /* submitSubItemResult = (String) o;
+                        Message m = submitSubItemhandler.obtainMessage();
+                        submitSubItemhandler.sendMessage(m);*/
+                    }
+                }
+        );
     }
 
 

@@ -19,7 +19,7 @@ import com.zhengyuan.baselib.listener.NetworkCallbacks.SimpleDataCallback;
 public enum DataObtainer {
     INSTANCE;
     private final String LOG_TAG = "DataObtainer";
-        private final String TAG = "EMWorkshopItemTransforBook2";
+    private final String TAG = "EMWorkshopItemTransforBook2";
 
     public void sendWsiforBook(String data, String sname, String url, String kujia, final NetworkCallbacks.SimpleDataCallback callback) {
         Element element = new Element("mybody");
@@ -254,6 +254,7 @@ public enum DataObtainer {
 
     /**
      * 获取货架上已有物件的信息
+     *
      * @param shelfInfo
      * @param mLoginUserId
      * @param callback
@@ -264,6 +265,23 @@ public enum DataObtainer {
         element.addProperty("shelfInfo", shelfInfo);
         element.addProperty("loginUserId", mLoginUserId);
         ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnGetShelfSubItems" + TAG,
+                new NetworkCallbacks.MessageListenerThinner() {
+                    @Override
+                    public void processMessage(Element element, Message message, Chat chat) {
+                        boolean isSuccess = element.getBody() != null &&
+                                !element.getBody().equals("");
+                        callback.onFinish(isSuccess, "", element.getProperty("result"));
+                    }
+                });
+    }
+
+    public void submitDAtaSubItems(String dataSubItems, String shelfInfo, String loginUserId, final NetworkCallbacks.SimpleDataCallback callback) {
+        Element element = new Element("mybody");
+        element.addProperty("type", "requestSubmitDAtaSubItems" + TAG);
+        element.addProperty("dataSubItems", dataSubItems);
+        element.addProperty("shelfInfo", shelfInfo);
+        element.addProperty("loginUserId", loginUserId);
+        ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnSubmitDAtaSubItems" + TAG,
                 new NetworkCallbacks.MessageListenerThinner() {
                     @Override
                     public void processMessage(Element element, Message message, Chat chat) {
