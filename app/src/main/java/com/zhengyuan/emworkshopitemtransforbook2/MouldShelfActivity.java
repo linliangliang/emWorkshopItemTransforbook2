@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Html;
 import android.util.Log;
+import android.view.TouchDelegate;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -94,6 +95,26 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
             closeProgremmer();
         }
     };
+    private Handler submitSubItemhandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            super.handleMessage(msg);
+            if (msg != null) {
+                String dataResult = (String) msg.obj;
+                if ("true".equals(dataResult)) {
+                    Toast.makeText(MouldShelfActivity.this, "提交成功", Toast.LENGTH_SHORT).show();
+                    mSubmitButton.setBackgroundResource(R.drawable.shape_rectangle_radius_theme);
+                    finish();//退出当前activity
+                } else {
+                    Toast.makeText(MouldShelfActivity.this, "提交失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+            //刷新显示
+            RefreshList();
+            closeProgremmer();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,12 +158,13 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
                 String info = intent.getStringExtra("result");
                 info = recode(info);//扫码器返回的信息进行编码处理
                 if (info != null && !"".equals(info)) {
-                    if (0 == checkAndAddInto(info)) {
+                    int res = checkAndAddInto(info);
+                    if (0 == res) {
                         Toast.makeText(MouldShelfActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
                         RefreshList();
-                    } else if (1 == checkAndAddInto(info)) {
+                    } else if (1 == res) {
                         Toast.makeText(MouldShelfActivity.this, "该模具以录入，不需重复录入", Toast.LENGTH_SHORT).show();
-                    } else if (-1 == checkAndAddInto(info)) {
+                    } else if (-1 == res) {
                         Toast.makeText(MouldShelfActivity.this, "请扫描“模具”二维码", Toast.LENGTH_SHORT).show();
                     }
                 } else {
@@ -306,13 +328,15 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
             //扫描的不是模具
             return -1;
         } else {
+            String WLDM=info.substring(info.indexOf(":"),info.indexOf("/"));
+            String PCH=info.substring(info.lastIndexOf(":"),info.lastIndexOf("/"));
+            Toast.makeText(MouldShelfActivity.this,WLDM+"/"+PCH,Toast.LENGTH_SHORT).show();
             //扫描的是模具
             if (countSubItem <= 0) {//直接添加
                 subItemQRInfos[countSubItem++] = info;
                 return 0;
             }
-            int i = 0;
-            for (; i < countSubItem; i++) {
+            for (int i = 0; i < countSubItem; i++) {
                 if (info.equals(subItemQRInfos[i])) {
                     return 1;
                 }
@@ -327,10 +351,10 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
         if (countSubItem <= 0) {//没有子项不需要删除
             return false;
         }
-        int i = 0;
-        for (; i < countSubItem; i++) {
+
+        for (int i = 0; i < countSubItem; i++) {
             if (info.equals(subItemQRInfos[i])) {
-                for (int j = i; j < countSubItem; j++) {
+                for (int j = i; j < countSubItem - 1; j++) {
                     subItemQRInfos[j] = subItemQRInfos[j + 1];
                 }
                 countSubItem--;
@@ -427,14 +451,13 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
      * @param loginUserId
      */
     private void SubmitDate(String dataSubItems, String shelfInfo, String loginUserId) {
-        Toast.makeText(MouldShelfActivity.this, "测试：提交数据成功", Toast.LENGTH_SHORT).show();
         DataObtainer.INSTANCE.submitDAtaSubItems(dataSubItems, shelfInfo, loginUserId,
                 new NetworkCallbacks.SimpleDataCallback() {
                     @Override
                     public void onFinish(boolean b, String s, Object o) {
-                       /* submitSubItemResult = (String) o;
                         Message m = submitSubItemhandler.obtainMessage();
-                        submitSubItemhandler.sendMessage(m);*/
+                        m.obj = o.toString();
+                        submitSubItemhandler.sendMessage(m);
                     }
                 }
         );

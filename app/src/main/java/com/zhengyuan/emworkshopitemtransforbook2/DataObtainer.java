@@ -277,11 +277,11 @@ public enum DataObtainer {
 
     public void submitDAtaSubItems(String dataSubItems, String shelfInfo, String loginUserId, final NetworkCallbacks.SimpleDataCallback callback) {
         Element element = new Element("mybody");
-        element.addProperty("type", "requestSubmitDAtaSubItems" + TAG);
+        element.addProperty("type", "requestSubmitDataShelfSubItems" + TAG);
         element.addProperty("dataSubItems", dataSubItems);
         element.addProperty("shelfInfo", shelfInfo);
         element.addProperty("loginUserId", loginUserId);
-        ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnSubmitDAtaSubItems" + TAG,
+        ChatUtils.INSTANCE.sendMessage(Constants.CHAT_TO_USER, element.toString(), "returnSubmitDataShelfSubItems" + TAG,
                 new NetworkCallbacks.MessageListenerThinner() {
                     @Override
                     public void processMessage(Element element, Message message, Chat chat) {
