@@ -125,7 +125,7 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
         if ("".equals(shelfInfo)) {
             finish();
         }
-        Toast.makeText(MouldShelfActivity.this, shelfInfo, Toast.LENGTH_LONG).show();
+        //Toast.makeText(MouldShelfActivity.this, shelfInfo, Toast.LENGTH_LONG).show();
         initView();
         initEvent();
         initGetShelfSubItems(shelfInfo, mLoginUserId);//根据传进来的货架信息从数据库读取存放的子件
@@ -160,7 +160,7 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
                 if (info != null && !"".equals(info)) {
                     int res = checkAndAddInto(info);
                     if (0 == res) {
-                        Toast.makeText(MouldShelfActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(MouldShelfActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
                         RefreshList();
                     } else if (1 == res) {
                         Toast.makeText(MouldShelfActivity.this, "该模具以录入，不需重复录入", Toast.LENGTH_SHORT).show();
@@ -328,16 +328,14 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
             //扫描的不是模具
             return -1;
         } else {
-            String WLDM=info.substring(info.indexOf(":"),info.indexOf("/"));
-            String PCH=info.substring(info.lastIndexOf(":"),info.lastIndexOf("/"));
-            Toast.makeText(MouldShelfActivity.this,WLDM+"/"+PCH,Toast.LENGTH_SHORT).show();
             //扫描的是模具
             if (countSubItem <= 0) {//直接添加
                 subItemQRInfos[countSubItem++] = info;
                 return 0;
             }
+
             for (int i = 0; i < countSubItem; i++) {
-                if (info.equals(subItemQRInfos[i])) {
+                if (info.contains(subItemQRInfos[i])) {
                     return 1;
                 }
             }
@@ -345,15 +343,40 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
             subItemQRInfos[countSubItem++] = info;
             return 0;
         }
+/*        if (info.contains("货架") && info.contains("物料代码") && info.contains("物料名称") && info.contains("批次号")) {
+            //扫描的不是模具
+            return -1;
+        } else {
+
+            String WLDM = info.substring(info.indexOf("：") + 1, info.indexOf("/"));
+            String PCH = info.substring(info.lastIndexOf("：") + 1, info.length());
+            Toast.makeText(MouldShelfActivity.this, WLDM + "/" + PCH + "=" + subItemQRInfos[0], Toast.LENGTH_LONG).show();
+            //扫描的是模具
+            if (countSubItem <= 0) {//直接添加
+                subItemQRInfos[countSubItem++] = info;
+                //Toast.makeText(MouldShelfActivity.this, "0->" + countSubItem, Toast.LENGTH_LONG).show();
+                return 0;
+            }
+
+            for (int i = 0; i < countSubItem; i++) {
+                if (subItemQRInfos[i].contains(WLDM) && subItemQRInfos[i].contains(PCH)) {
+                    return 1;
+                }
+            }
+            //循环结束没有找到相同项，添加
+            subItemQRInfos[countSubItem++] = info;
+            //Toast.makeText(MouldShelfActivity.this, "n->" + countSubItem, Toast.LENGTH_LONG).show();
+            return 0;
+        }*/
     }
 
     private boolean checkAndDelete(String info) {
+
         if (countSubItem <= 0) {//没有子项不需要删除
             return false;
         }
-
         for (int i = 0; i < countSubItem; i++) {
-            if (info.equals(subItemQRInfos[i])) {
+            if (info.contains(subItemQRInfos[i])) {
                 for (int j = i; j < countSubItem - 1; j++) {
                     subItemQRInfos[j] = subItemQRInfos[j + 1];
                 }
@@ -363,6 +386,24 @@ public class MouldShelfActivity extends Activity implements View.OnClickListener
         }
         //没有找到相同项，不需要删除
         return false;
+        /*if (countSubItem <= 0) {//没有子项不需要删除
+            return false;
+        }
+        String WLDM = info.substring(0, info.indexOf("/"));
+        String PCH = info.substring(info.lastIndexOf("/"), info.length());
+        Toast.makeText(MouldShelfActivity.this, WLDM + "/" + PCH, Toast.LENGTH_LONG).show();
+
+        for (int i = 0; i < countSubItem; i++) {
+            if (subItemQRInfos[i].contains(WLDM) && subItemQRInfos[i].contains(PCH)) {
+                for (int j = i; j < countSubItem - 1; j++) {
+                    subItemQRInfos[j] = subItemQRInfos[j + 1];
+                }
+                countSubItem--;
+                return true;
+            }
+        }
+        //没有找到相同项，不需要删除
+        return false;*/
     }
 
     /**
